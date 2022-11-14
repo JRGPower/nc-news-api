@@ -1,5 +1,6 @@
 const express = require('express')
-const { getTopics, invalidURL, catchAll } = require('./controllers/topics.controllers')
+const { getTopics } = require('./controllers/topics.controllers')
+const { invalidURL, catchAll, } = require('./error_handling/errors')
 
 const app = express()
 
