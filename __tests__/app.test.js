@@ -20,18 +20,10 @@ describe('ENDPOINT TESTS', () => {
                 .expect(200)
                 .then((res) => {
                     expect(res.body.topics).toBeInstanceOf(Array)
-                    expect(res.body.topics.length).toBe(3)
-                    res.body.topics.forEach((topic) => {
-                        expect(topic).toEqual(
-                            expect.objectContaining({
-                                slug: expect.any(String),
-                                description: expect.any(String)
-                            })
-                        );
-                    });
+                    expect(res.body.topics.length).toBeGreaterThan(0)
                 })
         });
-        test('GET 200 - all topics should have correct structure', () => {
+        test('GET 200 - all topic objects within array should have correct structure', () => {
             return request(app)
                 .get('/api/topics')
                 .expect(200)
