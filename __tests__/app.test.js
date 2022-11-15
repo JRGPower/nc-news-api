@@ -130,7 +130,7 @@ describe('ENDPOINT TESTS', () => {
                 .get("/api/articles/1000/comments")
                 .expect(404)
                 .then((res) => {
-                    expect(res.body.msg).toBe("article not found")
+                    expect(res.body.msg).toBe("article does not exist")
                 })
         });
         test('GET 400 - invalid article_id - bad request', () => {

@@ -1,15 +1,5 @@
 const db = require('../db/connection.js')
 
-exports.checkArticleExists = (articleId) => {
-    const articleQueryString =
-        `SELECT article_id FROM articles
-    WHERE article_id = $1`
-    return db.query(articleQueryString, [articleId]).then((res) => {
-        if (res.rows.length === 0) {
-            return Promise.reject({ status: 404, msg: "article not found" })
-        }
-    })
-}
 exports.checkExists = (colName, tableName, query, msg) => {
     const qStr =
         `
@@ -81,7 +71,7 @@ exports.selectArticleComments = (articleId) => {
     WHERE ar.article_id = $1
     ORDER BY com.created_at DESC
     `
-    return this.checkArticleExists(articleId)
+    return this.checkExists("article_id", "articles", articleId, "article does not exist")
         .then(() => {
             return db.query(commentQueryString, [articleId])
         })
