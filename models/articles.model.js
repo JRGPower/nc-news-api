@@ -39,3 +39,35 @@ exports.selectArticles = (articleId) => {
             return res.rows
         })
 }
+
+exports.selectArticleComments = (articleId) => {
+    const articleQueryString =
+        `SELECT article_id FROM articles
+    WHERE article_id = $1`
+
+    const commentQueryString = `
+    SELECT 
+        com.comment_id,
+        com.votes,
+        com.created_at,
+        users.username AS author,
+        com.body
+    FROM articles ar
+    JOIN users
+    ON ar.author = users.username
+
+    JOIN comments com
+    on ar.article_id = com.article_id
+
+    WHERE ar.article_id = $1
+    ORDER BY com.created_at DESC
+    `
+    return db.query(articleQueryString, [articleId]).then((res) => {
+        if (res.rows.length === 0) {
+            return Promise.reject({ status: 404, msg: "article not found" })
+        }
+        return db.query(commentQueryString, [articleId])
+    }).then((res) => {
+        return res.rows
+    })
+}
