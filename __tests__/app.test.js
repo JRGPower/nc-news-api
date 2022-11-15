@@ -32,6 +32,30 @@ describe('ENDPOINT TESTS', () => {
                 })
         });
     });
+    describe('GET /api/articles', () => {
+        test('should ', () => {
+            return request(app)
+                .get('/api/articles')
+                .expect(200).then((res) => {
+                    expect(res.body.articles).toBeInstanceOf(Array)
+                    expect(res.body.articles.length).toBeGreaterThan(0)
+                    expect(res.body.articles).toBeSortedBy("created_at", { descending: true })
+                    res.body.articles.forEach((article) => {
+                        expect(article).toEqual(
+                            expect.objectContaining({
+                                author: expect.any(String),
+                                title: expect.any(String),
+                                article_id: expect.any(Number),
+                                topic: expect.any(String),
+                                created_at: expect.any(String),
+                                votes: expect.any(Number),
+                                comment_count: expect.any(String),
+                            })
+                        );
+                    });
+                })
+        });
+    });
     describe('Errors', () => {
         test("invalid url", () => {
             return request(app)
