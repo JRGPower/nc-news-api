@@ -95,6 +95,53 @@ describe('ENDPOINT TESTS', () => {
                 })
         });
     });
+    describe.only('GET /api/articles/:article_id/comments', () => {
+        test('GET 200 - retrns all comments from a given article', () => {
+            return request(app)
+                .get('/api/articles/1/comments')
+                .expect(200)
+                .then((res) => {
+                    expect(res.body.comments).toBeInstanceOf(Array)
+                    expect(res.body.comments.length).toBeGreaterThan(0)
+                    expect(res.body.comments).toBeSortedBy("created_at", { descending: true })
+                    res.body.comments.forEach((comment) => {
+                        expect(comment).toEqual(
+                            expect.objectContaining({
+                                comment_id: expect.any(Number),
+                                votes: expect.any(Number),
+                                created_at: expect.any(String),
+                                author: expect.any(String),
+                                body: expect.any(String)
+                            })
+                        )
+                    })
+                })
+        });
+        test('GET 200 - return empty array for article with no comments', () => {
+            return request(app)
+                .get('/api/articles/2/comments')
+                .expect(200)
+                .then((res) => {
+                    expect(res.body.comments).toEqual([])
+                })
+        });
+        test('GET 404 - article id not found', () => {
+            return request(app)
+                .get("/api/articles/1000/comments")
+                .expect(404)
+                .then((res) => {
+                    expect(res.body.msg).toBe("article not found")
+                })
+        });
+        test('GET 400 - invalid article_id - bad request', () => {
+            return request(app)
+                .get("/api/articles/Notanumber/comments")
+                .expect(400)
+                .then((res) => {
+                    expect(res.body.msg).toBe("Bad Request")
+                })
+        });
+    });
     describe('Errors', () => {
         test("invalid url", () => {
             return request(app)
