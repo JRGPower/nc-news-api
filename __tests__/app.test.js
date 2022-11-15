@@ -52,6 +52,8 @@ describe('ENDPOINT TESTS', () => {
                                 comment_count: expect.any(String),
                             })
                         );
+                        const dateCreated = new Date(article.created_at)
+                        expect(dateCreated).toBeInstanceOf(Date)
                     });
                 })
         });
