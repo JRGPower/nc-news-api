@@ -14,7 +14,7 @@ afterAll(() => {
 
 describe('ENDPOINT TESTS', () => {
     describe('GET /api/topics', () => {
-        test('GET 200 - should return all an array with all topics from db', () => {
+        test('GET 200 - should return an array with all topics from db', () => {
             return request(app)
                 .get('/api/topics')
                 .expect(200)
@@ -33,7 +33,7 @@ describe('ENDPOINT TESTS', () => {
         });
     });
     describe('GET /api/articles', () => {
-        test('should ', () => {
+        test('GET 200 - should return an array with all articles from db ', () => {
             return request(app)
                 .get('/api/articles')
                 .expect(200).then((res) => {
@@ -55,6 +55,44 @@ describe('ENDPOINT TESTS', () => {
                         const dateCreated = new Date(article.created_at)
                         expect(dateCreated).toBeInstanceOf(Date)
                     });
+                })
+        });
+    });
+    describe('GET /api/articles/:article_id', () => {
+        test('GET 200 - returns single article when given valid id', () => {
+            return request(app)
+                .get("/api/articles/1")
+                .expect(200)
+                .then((res) => {
+                    console.log(res.body.article.article_id);
+                    expect(res.body.article.article_id).toBe(1)
+                    expect(res.body.article).toEqual(
+                        expect.objectContaining({
+                            author: expect.any(String),
+                            title: expect.any(String),
+                            article_id: expect.any(Number),
+                            topic: expect.any(String),
+                            created_at: expect.any(String),
+                            votes: expect.any(Number),
+                            comment_count: expect.any(String),
+                        })
+                    );
+                })
+        });
+        test('GET 200 - valid id with no data found', () => {
+            return request(app)
+                .get("/api/articles/500")
+                .expect(200)
+                .then((res) => {
+                    expect(res.body.article).toEqual([])
+                })
+        });
+        test('GET 400 - invalid id - respond with bad request', () => {
+            return request(app)
+                .get("/api/articles/not_an_id")
+                .expect(400)
+                .then((res) => {
+                    expect(res.body.msg).toBe("Bad Request")
                 })
         });
     });
