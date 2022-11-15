@@ -64,7 +64,6 @@ describe('ENDPOINT TESTS', () => {
                 .get("/api/articles/1")
                 .expect(200)
                 .then((res) => {
-                    console.log(res.body.article.article_id);
                     expect(res.body.article.article_id).toBe(1)
                     expect(res.body.article).toEqual(
                         expect.objectContaining({
@@ -79,12 +78,12 @@ describe('ENDPOINT TESTS', () => {
                     );
                 })
         });
-        test('GET 200 - valid id with no data found', () => {
+        test('GET 404 - valid id but no data found in db', () => {
             return request(app)
                 .get("/api/articles/500")
-                .expect(200)
+                .expect(404)
                 .then((res) => {
-                    expect(res.body.article).toEqual([])
+                    expect(res.body.msg).toBe("article not found")
                 })
         });
         test('GET 400 - invalid id - respond with bad request', () => {

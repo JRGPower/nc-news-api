@@ -33,7 +33,9 @@ exports.selectArticles = (articleId) => {
     queryString += ` ORDER BY articles.created_at DESC`
     return db.query(queryString, valuesArray)
         .then((res) => {
-            //console.log(res);
+            if (res.rows.length === 0) {
+                return Promise.reject({ status: 404, msg: "article not found" })
+            }
             return res.rows
         })
 }

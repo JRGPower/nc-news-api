@@ -11,7 +11,8 @@ exports.invalidInput = (err, req, res, next) => {
 };
 
 exports.catchAll = (err, req, res, next) => {
-    console.log(err)
-    //console.log(err.status, err.msg)
+    if (err.status && err.msg) {
+        res.status(err.status).send({ msg: err.msg })
+    }
     res.status(500).send({ msg: "internal server error" });
 };
