@@ -33,7 +33,7 @@ describe('ENDPOINT TESTS', () => {
         });
     });
     describe('GET /api/articles', () => {
-        test('GET 200 - should return an array with all articles from db ', () => {
+        test('GET 200 - should return an array with all articles from db - sorted by defaults', () => {
             return request(app)
                 .get('/api/articles')
                 .expect(200).then((res) => {
@@ -204,6 +204,24 @@ describe('ENDPOINT TESTS', () => {
                 .expect(400)
                 .then((res) => {
                     expect(res.body.msg).toBe("Bad Request")
+                })
+        });
+        test('POST 201 - invalid body - ignores additional body properties', () => {
+            return request(app)
+                .post("/api/articles/1/comments")
+                .send({ username: 'lurker', body: 'still lurkin', some: 'extra', props: 13 })
+                .expect(201)
+                .then((res) => {
+                    expect(res.body.comment).toEqual({
+                        comment_id: expect.any(Number),
+                        body: 'still lurkin',
+                        article_id: 1,
+                        author: 'lurker',
+                        votes: 0,
+                        created_at: expect.any(String)
+                    })
+                    const dateCreated = new Date(res.body.comment.created_at)
+                    expect(dateCreated).toBeInstanceOf(Date)
                 })
         });
     });
