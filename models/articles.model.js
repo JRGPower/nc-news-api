@@ -115,3 +115,26 @@ exports.insertComment = (articleId, commentBody) => {
             return res.rows[0]
         })
 }
+
+exports.updateArticle = (article_id, body) => {
+    if (!body.inc_votes) {
+        return Promise.reject({ status: 400, msg: "Bad Request" })
+    }
+
+    const { inc_votes } = body
+    const qStr =
+        `
+    UPDATE articles
+    SET votes = votes + $1
+    WHERE article_id = $2
+    RETURNING *
+    `
+
+    return this.checkExists("article_id", "articles", article_id, "article does not exist")
+        .then(() => {
+            return db.query(qStr, [inc_votes, article_id])
+        })
+        .then((res) => {
+            return res.rows[0]
+        })
+}

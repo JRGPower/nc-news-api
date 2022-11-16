@@ -1,5 +1,5 @@
 const express = require('express')
-const { getArticles, getArticleById, getArticleComments, postArticleComment } = require('./controllers/articles.controllers')
+const { getArticles, getArticleById, getArticleComments, postArticleComment, patchArticle } = require('./controllers/articles.controllers')
 const { getTopics } = require('./controllers/topics.controllers')
 const { invalidURL, catchAll, invalidInput, } = require('./error_handling/errors')
 
@@ -14,9 +14,12 @@ app.get('/api/articles/:article_id/comments', getArticleComments)
 
 app.post('/api/articles/:article_id/comments', postArticleComment)
 
+app.patch('/api/articles/:article_id', patchArticle)
+
 app.all('/*', invalidURL)
 
 app.use(invalidInput)
 app.use(catchAll)
 
 module.exports = app
+

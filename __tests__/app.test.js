@@ -225,6 +225,88 @@ describe('ENDPOINT TESTS', () => {
                 })
         });
     });
+    describe('PATCH /api/articles/:article_id ', () => {
+        test('PATCH 200 - responds with the updated article', () => {
+            return request(app)
+                .patch('/api/articles/2')
+                .send({ inc_votes: 10 })
+                .expect(200)
+                .then((res) => {
+                    expect(res.body.article).toEqual(
+                        expect.objectContaining({
+                            article_id: expect.any(Number),
+                            title: expect.any(String),
+                            topic: expect.any(String),
+                            author: expect.any(String),
+                            body: expect.any(String),
+                            created_at: expect.any(String),
+                            votes: expect.any(Number),
+                        })
+                    );
+                    const dateCreated = new Date(res.body.article.created_at)
+                    expect(dateCreated).toBeInstanceOf(Date)
+                    expect(res.body.article.votes).toBeGreaterThanOrEqual(10)
+                });
+        });
+        test('PATCH 404 - article not found', () => {
+            return request(app)
+                .patch("/api/articles/5000")
+                .send({ inc_votes: 10 })
+                .expect(404)
+                .then((res) => {
+                    expect(res.body.msg).toBe("article does not exist")
+                })
+        });
+        test('PATCH 400 - invalid article_id - bad request', () => {
+            return request(app)
+                .patch("/api/articles/worcestershireSauce")
+                .send({ inc_votes: 10 })
+                .expect(400)
+                .then((res) => {
+                    expect(res.body.msg).toBe("Bad Request")
+                })
+        });
+        test('PATCH 400 - invalid body - inc_votes missing', () => {
+            return request(app)
+                .patch('/api/articles/2')
+                .send({ inc_: 10 })
+                .expect(400)
+                .then((res) => {
+                    expect(res.body.msg).toBe("Bad Request")
+                })
+        });
+        test('PATCH 400 - invalid body - newVote not a number', () => {
+            return request(app)
+                .patch('/api/articles/2')
+                .send({ inc_votes: 'cats' })
+                .expect(400)
+                .then((res) => {
+                    expect(res.body.msg).toBe("Bad Request")
+                })
+        });
+        test('PATCH 200 - ignores additional proprties on patch body', () => {
+            return request(app)
+                .patch('/api/articles/2')
+                .send({ inc_votes: 10, extra: "prop" })
+                .expect(200)
+                .then((res) => {
+                    expect(res.body.article).toEqual(
+                        expect.objectContaining({
+                            article_id: expect.any(Number),
+                            title: expect.any(String),
+                            topic: expect.any(String),
+                            author: expect.any(String),
+                            body: expect.any(String),
+                            created_at: expect.any(String),
+                            votes: expect.any(Number),
+                        })
+                    );
+                    const dateCreated = new Date(res.body.article.created_at)
+                    expect(dateCreated).toBeInstanceOf(Date)
+                    expect(res.body.article.votes).toBeGreaterThanOrEqual(10)
+                });
+        });
+    });
     describe('Errors', () => {
         test("invalid url", () => {
             return request(app)
