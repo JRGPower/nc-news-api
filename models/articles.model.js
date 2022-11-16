@@ -1,3 +1,4 @@
+const format = require('pg-format')
 const db = require('../db/connection.js')
 
 exports.checkExists = (colName, tableName, query, msg) => {
@@ -8,12 +9,13 @@ exports.checkExists = (colName, tableName, query, msg) => {
         comments: ["comment_id", "body", "article_id", "author", "votes", "created_at"]
     }
     if (validArguments.hasOwnProperty(tableName) && validArguments[tableName].includes(colName)) {
-        const qStr =
-            `
-        SELECT ${colName} FROM ${tableName}
-        WHERE ${colName} = '${query}'
-        `
-        return db.query(qStr).then((res) => {
+
+        const qStr = format(
+            `SELECT %I FROM %I
+            WHERE %I = $1`,
+            colName, tableName, colName)
+
+        return db.query(qStr, [query]).then((res) => {
             if (res.rows.length === 0) {
                 return Promise.reject({ status: 404, "msg": msg })
             }
