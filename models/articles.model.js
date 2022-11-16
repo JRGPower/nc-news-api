@@ -1,5 +1,27 @@
+const format = require('pg-format')
 const db = require('../db/connection.js')
 
+exports.checkExists = (colName, tableName, query, msg) => {
+
+    const validArguments = {
+        users: ["username", "name", "avatar_url"],
+        articles: ["article_id", "title", "topic", "author", "body", "created_at", "votes"],
+        comments: ["comment_id", "body", "article_id", "author", "votes", "created_at"]
+    }
+    if (validArguments.hasOwnProperty(tableName) && validArguments[tableName].includes(colName)) {
+
+        const qStr = format(
+            `SELECT %I FROM %I
+            WHERE %I = $1`,
+            colName, tableName, colName)
+
+        return db.query(qStr, [query]).then((res) => {
+            if (res.rows.length === 0) {
+                return Promise.reject({ status: 404, "msg": msg })
+            }
+        })
+    }
+}
 
 exports.selectArticles = (articleId) => {
     let valuesArray = []
@@ -41,9 +63,6 @@ exports.selectArticles = (articleId) => {
 }
 
 exports.selectArticleComments = (articleId) => {
-    const articleQueryString =
-        `SELECT article_id FROM articles
-    WHERE article_id = $1`
 
     const commentQueryString = `
     SELECT 
@@ -62,12 +81,37 @@ exports.selectArticleComments = (articleId) => {
     WHERE ar.article_id = $1
     ORDER BY com.created_at DESC
     `
-    return db.query(articleQueryString, [articleId]).then((res) => {
-        if (res.rows.length === 0) {
-            return Promise.reject({ status: 404, msg: "article not found" })
-        }
-        return db.query(commentQueryString, [articleId])
-    }).then((res) => {
-        return res.rows
-    })
+    return this.checkExists("article_id", "articles", articleId, "article does not exist")
+        .then(() => {
+            return db.query(commentQueryString, [articleId])
+        })
+        .then((res) => {
+            return res.rows
+        })
+}
+
+exports.insertComment = (articleId, commentBody) => {
+    if (!commentBody.username || !commentBody.body) {
+        return Promise.reject({ status: 400, msg: "Bad Request" })
+    }
+    const { username, body } = commentBody
+    const qStr = `
+        INSERT INTO comments 
+        (body,
+        article_id,
+        author,
+        votes,
+        created_at)
+
+        VALUES
+        ($1,$2,$3,$4,$5)
+        RETURNING *
+        `
+    return this.checkExists("article_id", "articles", articleId, "article does not exist")
+        .then(() => {
+            return db.query(qStr, [body, articleId, username, 0, new Date()])
+        })
+        .then((res) => {
+            return res.rows[0]
+        })
 }

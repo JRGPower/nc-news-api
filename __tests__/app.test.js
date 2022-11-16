@@ -33,7 +33,7 @@ describe('ENDPOINT TESTS', () => {
         });
     });
     describe('GET /api/articles', () => {
-        test('GET 200 - should return an array with all articles from db ', () => {
+        test('GET 200 - should return an array with all articles from db - sorted by defaults', () => {
             return request(app)
                 .get('/api/articles')
                 .expect(200).then((res) => {
@@ -95,7 +95,7 @@ describe('ENDPOINT TESTS', () => {
                 })
         });
     });
-    describe.only('GET /api/articles/:article_id/comments', () => {
+    describe('GET /api/articles/:article_id/comments', () => {
         test('GET 200 - retrns all comments from a given article', () => {
             return request(app)
                 .get('/api/articles/1/comments')
@@ -130,7 +130,7 @@ describe('ENDPOINT TESTS', () => {
                 .get("/api/articles/1000/comments")
                 .expect(404)
                 .then((res) => {
-                    expect(res.body.msg).toBe("article not found")
+                    expect(res.body.msg).toBe("article does not exist")
                 })
         });
         test('GET 400 - invalid article_id - bad request', () => {
@@ -139,6 +139,89 @@ describe('ENDPOINT TESTS', () => {
                 .expect(400)
                 .then((res) => {
                     expect(res.body.msg).toBe("Bad Request")
+                })
+        });
+    });
+    describe('POST /api/articles/:article_id/comments', () => {
+        test('POST 201 - responds with comment object', () => {
+            return request(app)
+                .post('/api/articles/1/comments')
+                .send({ username: 'lurker', body: 'still lurkin' })
+                .expect(201)
+                .then((res) => {
+                    expect(res.body.comment).toEqual({
+                        comment_id: expect.any(Number),
+                        body: 'still lurkin',
+                        article_id: 1,
+                        author: 'lurker',
+                        votes: 0,
+                        created_at: expect.any(String)
+                    })
+                    const dateCreated = new Date(res.body.comment.created_at)
+                    expect(dateCreated).toBeInstanceOf(Date)
+                })
+        });
+        test('POST 404 - article id not found', () => {
+            return request(app)
+                .post("/api/articles/1001/comments")
+                .send({ username: 'lurker', body: 'still lurkin' })
+                .expect(404)
+                .then((res) => {
+                    expect(res.body.msg).toBe("article does not exist")
+                })
+        });
+        test('POST 400 - invalid article_id - bad request', () => {
+            return request(app)
+                .post("/api/articles/StillNotaNumber/comments")
+                .send({ username: 'lurker', body: 'still lurkin' })
+                .expect(400)
+                .then((res) => {
+                    expect(res.body.msg).toBe("Bad Request")
+                })
+        });
+        test('POST 400 - invalid body - user does not exist - foreign key violation', () => {
+            return request(app)
+                .post("/api/articles/1/comments")
+                .send({ username: 'invalid_user_', body: 'still lurkin' })
+                .expect(400)
+                .then((res) => {
+                    expect(res.body.msg).toBe("Bad Request")
+                })
+        });
+        test('POST 400 - invalid body - wrong structure: no body', () => {
+            return request(app)
+                .post("/api/articles/1/comments")
+                .send({ username: 'lurker' })
+                .expect(400)
+                .then((res) => {
+                    expect(res.body.msg).toBe("Bad Request")
+                })
+        });
+        test('POST 400 - invalid body - wrong structure: body empty', () => {
+            return request(app)
+                .post("/api/articles/1/comments")
+                .send({ username: 'lurker', body: '' })
+                .expect(400)
+                .then((res) => {
+                    expect(res.body.msg).toBe("Bad Request")
+                })
+        });
+        test('POST 201 - invalid body - ignores additional body properties', () => {
+            return request(app)
+                .post("/api/articles/1/comments")
+                .send({ username: 'lurker', body: 'still lurkin', some: 'extra', props: 13 })
+                .expect(201)
+                .then((res) => {
+                    expect(res.body.comment).toEqual({
+                        comment_id: expect.any(Number),
+                        body: 'still lurkin',
+                        article_id: 1,
+                        author: 'lurker',
+                        votes: 0,
+                        created_at: expect.any(String)
+                    })
+                    const dateCreated = new Date(res.body.comment.created_at)
+                    expect(dateCreated).toBeInstanceOf(Date)
                 })
         });
     });
