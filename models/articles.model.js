@@ -1,16 +1,24 @@
 const db = require('../db/connection.js')
 
 exports.checkExists = (colName, tableName, query, msg) => {
-    const qStr =
-        `
+
+    const validArguments = {
+        users: ["username", "name", "avatar_url"],
+        articles: ["article_id", "title", "topic", "author", "body", "created_at", "votes"],
+        comments: ["comment_id", "body", "article_id", "author", "votes", "created_at"]
+    }
+    if (validArguments.hasOwnProperty(tableName) && validArguments[tableName].includes(colName)) {
+        const qStr =
+            `
         SELECT ${colName} FROM ${tableName}
         WHERE ${colName} = '${query}'
         `
-    return db.query(qStr).then((res) => {
-        if (res.rows.length === 0) {
-            return Promise.reject({ status: 404, "msg": msg })
-        }
-    })
+        return db.query(qStr).then((res) => {
+            if (res.rows.length === 0) {
+                return Promise.reject({ status: 404, "msg": msg })
+            }
+        })
+    }
 }
 
 exports.selectArticles = (articleId) => {
@@ -97,10 +105,7 @@ exports.insertComment = (articleId, commentBody) => {
         ($1,$2,$3,$4,$5)
         RETURNING *
         `
-    return this.checkExists("username", "users", username, "user does not exist")
-        .then(() => {
-            return this.checkExists("article_id", "articles", articleId, "article does not exist")
-        })
+    return this.checkExists("article_id", "articles", articleId, "article does not exist")
         .then(() => {
             return db.query(qStr, [body, articleId, username, 0, new Date()])
         })

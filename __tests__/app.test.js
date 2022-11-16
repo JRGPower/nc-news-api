@@ -179,13 +179,13 @@ describe('ENDPOINT TESTS', () => {
                     expect(res.body.msg).toBe("Bad Request")
                 })
         });
-        test('POST 404 - invalid body - user does not exist', () => {
+        test('POST 400 - invalid body - user does not exist - foreign key violation', () => {
             return request(app)
                 .post("/api/articles/1/comments")
                 .send({ username: 'invalid_user_', body: 'still lurkin' })
-                .expect(404)
+                .expect(400)
                 .then((res) => {
-                    expect(res.body.msg).toBe("user does not exist")
+                    expect(res.body.msg).toBe("Bad Request")
                 })
         });
         test('POST 400 - invalid body - wrong structure: no body', () => {
