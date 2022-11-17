@@ -226,7 +226,7 @@ describe('ENDPOINT TESTS', () => {
         });
     });
     describe('PATCH /api/articles/:article_id ', () => {
-        test('PATCH 200 - responds with the updated article', () => {
+        test('PATCH 200 - increase votes and respond with updated article', () => {
             return request(app)
                 .patch('/api/articles/2')
                 .send({ inc_votes: 10 })
@@ -246,6 +246,28 @@ describe('ENDPOINT TESTS', () => {
                     const dateCreated = new Date(res.body.article.created_at)
                     expect(dateCreated).toBeInstanceOf(Date)
                     expect(res.body.article.votes).toBeGreaterThanOrEqual(10)
+                });
+        });
+        test('PATCH 200 - reduces votes and respond with updated article', () => {
+            return request(app)
+                .patch('/api/articles/2')
+                .send({ inc_votes: -10 })
+                .expect(200)
+                .then((res) => {
+                    expect(res.body.article).toEqual(
+                        expect.objectContaining({
+                            article_id: expect.any(Number),
+                            title: expect.any(String),
+                            topic: expect.any(String),
+                            author: expect.any(String),
+                            body: expect.any(String),
+                            created_at: expect.any(String),
+                            votes: expect.any(Number),
+                        })
+                    );
+                    const dateCreated = new Date(res.body.article.created_at)
+                    expect(dateCreated).toBeInstanceOf(Date)
+                    expect(res.body.article.votes).toBe(-10)
                 });
         });
         test('PATCH 404 - article not found', () => {
