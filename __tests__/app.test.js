@@ -497,7 +497,7 @@ describe('ENDPOINT TESTS', () => {
             });
         });
     });
-    describe.only('DELETE /api/comments/:comment_id', () => {
+    describe('DELETE /api/comments/:comment_id', () => {
         describe('/api/comments/:comment_id', () => {
             test('DELETE 204 - successful deletion', () => {
                 return request(app)
