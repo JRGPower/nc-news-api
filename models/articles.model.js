@@ -23,39 +23,64 @@ exports.checkExists = (colName, tableName, query, msg) => {
     }
 }
 
-exports.selectArticles = (articleId) => {
-    let valuesArray = []
-    let queryString = `
-    SELECT 
-    users.username AS author, 
-    articles.title, 
-    articles.article_id, 
-    articles.topic, 
-    articles.created_at, 
-    articles.votes,
-    count.comment_count
+exports.selectArticles = (articleId, topic, sort_by = "created_at", order = "desc") => {
 
-    FROM articles
-    JOIN users 
-    ON articles.author = users.username
+    if (order !== "asc" && order !== "desc") {
+        return Promise.reject({ status: 400, msg: "Bad Request" });
+    }
+
+    const validSortTerms =
+        [
+            "author",
+            "title",
+            "article_id",
+            "topic",
+            "created_at",
+            "votes",
+            "comment_count"
+        ];
+
+    if (!validSortTerms.includes(sort_by)) {
+        return Promise.reject({ status: 400, msg: "Bad Request" });
+    }
+
+    let valuesArray = []
+    let queryString =
+        `
+    SELECT 
+    u.username AS author, 
+    a.title, 
+    a.article_id, 
+    a.topic, 
+    a.created_at, 
+    a.votes,
+    count.comment_count
+  
+    FROM articles a
+    JOIN users u
+    ON a.author = u.username
     JOIN
-        (SELECT  ar.article_id, 
-            COUNT(cm.comment_id) AS comment_count
+        (SELECT  ar.article_id, COUNT(cm.comment_id) AS comment_count
         FROM articles ar
         LEFT JOIN comments cm
          ON ar.article_id = cm.article_id
          GROUP BY ar.article_id) as count
-    ON articles.article_id = count.article_id
+    ON a.article_id = count.article_id
     `
-    if (articleId) {
-        queryString += `WHERE articles.article_id = $1`
+    if (topic) {
+        valuesArray.push(topic)
+        queryString += ` WHERE a.topic = $${valuesArray.length}`
+    }
+    else if (articleId) {
         valuesArray.push(articleId)
+        queryString += ` WHERE a.article_id = $${valuesArray.length}`
     }
 
-    queryString += ` ORDER BY articles.created_at DESC`
+    queryString += ` ORDER BY ${sort_by} ${order}`;
+
     return db.query(queryString, valuesArray)
         .then((res) => {
-            if (res.rows.length === 0) {
+            if (res.rows.length === 0 && articleId !== null) {
                 return Promise.reject({ status: 404, msg: "article not found" })
             }
             return res.rows
