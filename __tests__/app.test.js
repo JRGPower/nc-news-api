@@ -57,6 +57,152 @@ describe('ENDPOINT TESTS', () => {
                     });
                 })
         });
+        describe('GET /api/articles - queries', () => {
+            describe('GET 200 - /api/articles/ - sort_by', () => {
+                test("sort by author", () => {
+                    return request(app)
+                        .get("/api/articles/?sort_by=author")
+                        .expect(200)
+                        .then((res) => {
+                            expect(res.body.articles.length).toBeGreaterThan(0)
+                            expect(res.body.articles).toBeSortedBy("author", {
+                                descending: true,
+                            });
+                        });
+                });
+                test("sort by title", () => {
+                    return request(app)
+                        .get("/api/articles/?sort_by=title")
+                        .expect(200)
+                        .then((res) => {
+                            expect(res.body.articles.length).toBeGreaterThan(0)
+                            expect(res.body.articles).toBeSortedBy("title", {
+                                descending: true,
+                            });
+                        });
+                });
+                test("sort by article_id", () => {
+                    return request(app)
+                        .get("/api/articles/?sort_by=article_id")
+                        .expect(200)
+                        .then((res) => {
+                            expect(res.body.articles.length).toBeGreaterThan(0)
+                            expect(res.body.articles).toBeSortedBy("article_id", {
+                                descending: true,
+                            });
+                        });
+                });
+                test("sort by topic", () => {
+                    return request(app)
+                        .get("/api/articles/?sort_by=topic")
+                        .expect(200)
+                        .then((res) => {
+                            expect(res.body.articles.length).toBeGreaterThan(0)
+                            expect(res.body.articles).toBeSortedBy("topic", {
+                                descending: true,
+                            });
+                        });
+                });
+                test("sort by votes", () => {
+                    return request(app)
+                        .get("/api/articles/?sort_by=votes")
+                        .expect(200)
+                        .then((res) => {
+                            expect(res.body.articles.length).toBeGreaterThan(0)
+                            expect(res.body.articles).toBeSortedBy("votes", {
+                                descending: true,
+                            });
+                        });
+                });
+                test("sort by comment_count", () => {
+                    return request(app)
+                        .get("/api/articles/?sort_by=comment_count")
+                        .expect(200)
+                        .then((res) => {
+                            expect(res.body.articles.length).toBeGreaterThan(0)
+                            expect(res.body.articles).toBeSortedBy("comment_count", {
+                                descending: true, coerce: true
+                            });
+                        });
+                });
+            });
+            describe('GET 200 - /api/articles/ - order', () => {
+                test("order ascending - sorted by default - created_at", () => {
+                    return request(app)
+                        .get("/api/articles/?order=asc")
+                        .expect(200)
+                        .then((res) => {
+                            expect(res.body.articles.length).toBeGreaterThan(0)
+                            expect(res.body.articles).toBeSortedBy("created_at", {
+                                ascending: true,
+                            });
+                        });
+                })
+                test("order ascending - sorted_by votes", () => {
+                    return request(app)
+                        .get("/api/articles/?sort_by=votes&order=asc")
+                        .expect(200)
+                        .then((res) => {
+                            expect(res.body.articles.length).toBeGreaterThan(0)
+                            expect(res.body.articles).toBeSortedBy("votes", {
+                                ascending: true,
+                            });
+                        });
+                })
+
+            });
+            describe('GET 200 - /api/articles/ - topic', () => {
+                test('filter by topic returning all topics', () => {
+                    return request(app)
+                        .get("/api/articles/?topic=mitch&sort_by=votes&order=asc")
+                        .expect(200)
+                        .then((res) => {
+                            expect(res.body.articles).toBeInstanceOf(Array)
+                            expect(res.body.articles.length).toBeGreaterThan(0)
+                            expect(res.body.articles).toBeSortedBy("votes", {
+                                ascending: true,
+                            });
+                            res.body.articles.forEach((article) => {
+                                expect(article.topic).toBe('mitch');
+                            });
+                        });
+                });
+                test('return empty array when no articles exist with the"topic"', () => {
+                    return request(app)
+                        .get("/api/articles/?topic=paper&sort_by=votes&order=asc")
+                        .expect(200)
+                        .then((res) => {
+                            expect(res.body.articles).toEqual([])
+                        });
+                });
+            });
+            describe('GET - query errors', () => {
+                test("GET 400 - invalid sort term", () => {
+                    return request(app)
+                        .get("/api/articles/?sort_by=aBunchOfFlowers")
+                        .expect(400)
+                        .then((res) => {
+                            expect(res.body.msg).toBe("Bad Request");
+                        });
+                })
+                test("GET 400 - invalid order term", () => {
+                    return request(app)
+                        .get("/api/articles/?sort_by=votes&order=greenest")
+                        .expect(400)
+                        .then((res) => {
+                            expect(res.body.msg).toBe("Bad Request");
+                        });
+                })
+                test("GET 404 - invalid topic", () => {
+                    return request(app)
+                        .get("/api/articles/?topic=chesss")
+                        .expect(404)
+                        .then((res) => {
+                            expect(res.body.msg).toBe("topic does not exist");
+                        });
+                })
+            });
+        });
     });
     describe('GET /api/articles/:article_id', () => {
         test('GET 200 - returns single article when given valid id', () => {
