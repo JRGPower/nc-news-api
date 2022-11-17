@@ -1,5 +1,6 @@
 const express = require('express')
 const { getArticles, getArticleById, getArticleComments, postArticleComment, patchArticle } = require('./controllers/articles.controllers')
+const { deleteComment } = require('./controllers/comments.controllers')
 const { getTopics } = require('./controllers/topics.controllers')
 const { getUsers } = require('./controllers/users.controllers')
 const { invalidURL, catchAll, invalidInput, } = require('./error_handling/errors')
@@ -10,6 +11,8 @@ app.use(express.json())
 app.get('/api/topics', getTopics)
 
 app.get("/api/users", getUsers)
+
+app.delete("/api/comments/:comment_id", deleteComment)
 
 app.get('/api/articles', getArticles)
 app.get('/api/articles/:article_id', getArticleById)
