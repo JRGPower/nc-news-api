@@ -1,8 +1,8 @@
-const { selectArticles, selectArticleComments, insertComment, updateArticle } = require("../models/articles.model")
+const { selectArticles, selectArticleComments, insertComment, updateArticle, selectArticleById } = require("../models/articles.model")
 
 exports.getArticles = (req, res, next) => {
     const { topic, sort_by, order } = req.query
-    selectArticles(null, topic, sort_by, order).then((articles) => {
+    selectArticles(topic, sort_by, order).then((articles) => {
         res.status(200).send({ articles })
     }).catch((err) => {
         next(err)
@@ -11,12 +11,13 @@ exports.getArticles = (req, res, next) => {
 
 exports.getArticleById = (req, res, next) => {
     const { article_id } = req.params
-    selectArticles(article_id).then((article) => {
+    selectArticleById(article_id).then((article) => {
         res.status(200).send({ article: article[0] })
     }).catch((err) => {
         next(err)
     })
 }
+
 
 exports.getArticleComments = (req, res, next) => {
     const { article_id } = req.params

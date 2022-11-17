@@ -4,6 +4,7 @@ const db = require('../db/connection.js')
 exports.checkExists = (colName, tableName, query, msg) => {
 
     const validArguments = {
+        topics: ["slug", "description"],
         users: ["username", "name", "avatar_url"],
         articles: ["article_id", "title", "topic", "author", "body", "created_at", "votes"],
         comments: ["comment_id", "body", "article_id", "author", "votes", "created_at"]
@@ -23,8 +24,8 @@ exports.checkExists = (colName, tableName, query, msg) => {
     }
 }
 
-exports.selectArticles = (articleId, topic, sort_by = "created_at", order = "desc") => {
-
+exports.selectArticles = (topic, sort_by = "created_at", order = "desc") => {
+    //query validation
     if (order !== "asc" && order !== "desc") {
         return Promise.reject({ status: 400, msg: "Bad Request" });
     }
@@ -43,48 +44,78 @@ exports.selectArticles = (articleId, topic, sort_by = "created_at", order = "des
     if (!validSortTerms.includes(sort_by)) {
         return Promise.reject({ status: 400, msg: "Bad Request" });
     }
-
-    let valuesArray = []
+    //
     let queryString =
         `
     SELECT 
-    u.username AS author, 
-    a.title, 
-    a.article_id, 
-    a.topic, 
-    a.created_at, 
-    a.votes,
+    articles.author, 
+    articles.title, 
+    articles.article_id, 
+    articles.topic, 
+    articles.created_at, 
+    articles.votes,
     count.comment_count
   
-    FROM articles a
-    JOIN users u
-    ON a.author = u.username
+    FROM articles    
     JOIN
-        (SELECT  ar.article_id, COUNT(cm.comment_id) AS comment_count
-        FROM articles ar
-        LEFT JOIN comments cm
-         ON ar.article_id = cm.article_id
-         GROUP BY ar.article_id) as count
-    ON a.article_id = count.article_id
+        (SELECT  articles.article_id, COUNT(comments.comment_id) AS comment_count
+        FROM articles
+        LEFT JOIN comments 
+         ON articles.article_id = comments.article_id
+         GROUP BY articles.article_id) as count
+    ON articles.article_id = count.article_id
     `
     if (topic) {
-        valuesArray.push(topic)
-        queryString += ` WHERE a.topic = $${valuesArray.length}`
-    }
-    else if (articleId) {
-        valuesArray.push(articleId)
-        queryString += ` WHERE a.article_id = $${valuesArray.length}`
-    }
+        return this.checkExists("slug", "topics", topic, "topic does not exist")
+            .then(() => {
+                queryString += ` WHERE articles.topic = $1`
+                queryString += ` ORDER BY ${sort_by} ${order}`;
+                return db.query(queryString, [topic])
 
-    queryString += ` ORDER BY ${sort_by} ${order}`;
+            })
+            .then((res) => {
+                return res.rows
+            })
 
-    return db.query(queryString, valuesArray)
+    } else {
+        queryString += ` ORDER BY ${sort_by} ${order}`;
+        return db.query(queryString)
+            .then((res) => {
+                return res.rows
+            })
+    }
+}
+
+exports.selectArticleById = (article_id) => {
+    let qStr =
+        `
+SELECT 
+articles.author, 
+articles.title, 
+articles.article_id, 
+articles.topic, 
+articles.created_at, 
+articles.votes,
+count.comment_count
+
+FROM articles    
+JOIN
+    (SELECT  articles.article_id, COUNT(comments.comment_id) AS comment_count
+    FROM articles
+    LEFT JOIN comments 
+     ON articles.article_id = comments.article_id
+     GROUP BY articles.article_id) as count
+ON articles.article_id = count.article_id
+WHERE articles.article_id = $1
+`
+    return db.query(qStr, [article_id])
         .then((res) => {
-            if (res.rows.length === 0 && articleId !== null) {
+            if (res.rows.length === 0) {
                 return Promise.reject({ status: 404, msg: "article not found" })
             }
             return res.rows
         })
+
 }
 
 exports.selectArticleComments = (articleId) => {
