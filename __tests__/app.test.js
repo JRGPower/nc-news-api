@@ -329,6 +329,28 @@ describe('ENDPOINT TESTS', () => {
                 });
         });
     });
+    describe('GET /api/users', () => {
+        describe('GET /api/users', () => {
+            test('GET 200 - should return an array with all users', () => {
+                return request(app)
+                    .get('/api/users')
+                    .expect(200)
+                    .then((res) => {
+                        expect(res.body.users).toBeInstanceOf(Array)
+                        expect(res.body.users.length).toBeGreaterThan(0)
+                        res.body.users.forEach((user) => {
+                            expect(user).toEqual(
+                                expect.objectContaining({
+                                    username: expect.any(String),
+                                    name: expect.any(String),
+                                    avatar_url: expect.anything()
+                                })
+                            );
+                        });
+                    })
+            });
+        });
+    });
     describe('Errors', () => {
         test("invalid url", () => {
             return request(app)
