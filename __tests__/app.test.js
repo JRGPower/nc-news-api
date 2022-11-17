@@ -162,6 +162,9 @@ describe('ENDPOINT TESTS', () => {
                             expect(res.body.articles).toBeSortedBy("votes", {
                                 ascending: true,
                             });
+                            res.body.articles.forEach((article) => {
+                                expect(article.topic).toBe('mitch');
+                            });
                         });
                 });
                 test('return empty array when no articles exist with the"topic"', () => {
@@ -190,12 +193,12 @@ describe('ENDPOINT TESTS', () => {
                             expect(res.body.msg).toBe("Bad Request");
                         });
                 })
-                test("GET 400 - invalid topic", () => {
+                test("GET 404 - invalid topic", () => {
                     return request(app)
-                        .get("/api/articles/topic&=chesss")
-                        .expect(400)
+                        .get("/api/articles/?topic=chesss")
+                        .expect(404)
                         .then((res) => {
-                            expect(res.body.msg).toBe("Bad Request");
+                            expect(res.body.msg).toBe("topic does not exist");
                         });
                 })
             });
