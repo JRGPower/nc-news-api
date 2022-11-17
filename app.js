@@ -4,9 +4,16 @@ const { deleteComment } = require('./controllers/comments.controllers')
 const { getTopics } = require('./controllers/topics.controllers')
 const { getUsers } = require('./controllers/users.controllers')
 const { invalidURL, catchAll, invalidInput, } = require('./error_handling/errors')
+const { readFile } = require('fs/promises')
 
 const app = express()
 app.use(express.json())
+
+app.get('/api', (req, res, next) => {
+    return readFile(`${__dirname}/db/endpoints.json`, "utf8").then((data) => {
+        res.send(JSON.parse(data))
+    })
+})
 
 app.get('/api/topics', getTopics)
 

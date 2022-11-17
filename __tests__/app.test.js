@@ -13,6 +13,132 @@ afterAll(() => {
 });
 
 describe('ENDPOINT TESTS', () => {
+    describe.only('GET /api', () => {
+        test('should respond with data about the endpoints', () => {
+            return request(app).get('/api').then((res) => {
+                console.log(res.body);
+                expect(res.body).toStrictEqual({
+                    "GET /api": {
+                        "description": "serves up a json representation of all the available endpoints of the api"
+                    },
+                    "GET /api/topics": {
+                        "description": "serves an array of all topics",
+                        "queries": [],
+                        "exampleResponse": {
+                            "topics": [
+                                {
+                                    "slug": "football",
+                                    "description": "Footie!"
+                                }
+                            ]
+                        }
+                    },
+                    "GET /api/users": {
+                        "description": "serves an array of all users",
+                        "queries": [],
+                        "exampleResponse": {
+                            "topics": [
+                                {
+                                    "username": "Jeffers",
+                                    "name": "Jeff Mitch",
+                                    "avatar_url": "http://someimage.jpg"
+                                }
+                            ]
+                        }
+                    },
+                    "GET /api/articles": {
+                        "description": "serves an array of all articles",
+                        "queries": [
+                            "topic",
+                            "sort_by",
+                            "order"
+                        ],
+                        "exampleResponse": {
+                            "articles": [
+                                {
+                                    "author": "icellusedkars",
+                                    "title": "Eight pug gifs that remind me of mitch",
+                                    "article_id": 1,
+                                    "topic": "mitch",
+                                    "body": "some gifs",
+                                    "created_at": 1604394720000,
+                                    "votes": 0,
+                                    "comment_count": 0
+                                }
+                            ]
+                        }
+                    },
+                    "GET /api/articles/:article_id": {
+                        "description": "serves a single article if its id matches the article_id parameter",
+                        "queries": [],
+                        "exampleResponse": {
+                            "article": {
+                                "author": "icellusedkars",
+                                "title": "Eight pug gifs that remind me of mitch",
+                                "article_id": 1,
+                                "topic": "mitch",
+                                "body": "some gifs",
+                                "created_at": 1604394720000,
+                                "votes": 0,
+                                "comment_count": 0
+                            }
+                        }
+                    },
+                    "GET /api/articles/:article_id/comments": {
+                        "description": "serves an array of comments ascociated with an article_id",
+                        "queries": [],
+                        "exampleResponse": {
+                            "article": {
+                                "comment _id": 40,
+                                "votes": 0,
+                                "created_at": 1589577540000,
+                                "author": "icellusedkars",
+                                "body": "Lobster pot"
+                            }
+                        }
+                    },
+                    "POST /api/articles/:article_id/comments": {
+                        "description": "accepts an input object with 'username' and 'body' parameters, POSTs a new comment with the submitted article_id parameter, and serves the posted comment object",
+                        "queries": [],
+                        "exampleInput": {
+                            "username": "mitch",
+                            "body": "comments here"
+                        },
+                        "exampleResponse": {
+                            "article": {
+                                "comment _id": 41,
+                                "votes": 0,
+                                "created_at": 1589577580000,
+                                "author": "mitch",
+                                "body": "comments here"
+                            }
+                        }
+                    },
+                    "PATCH /api/articles/:article_id": {
+                        "description": "accepts an input object with 'inc_votes' parameter, updates an existing article with the submitted article_id parameter, and serves the updated article object",
+                        "queries": [],
+                        "exampleInput": {
+                            "inc_votes": 10
+                        },
+                        "exampleResponse": {
+                            "article": {
+                                "title": "Sony Vaio; or, The Laptop",
+                                "topic": "mitch",
+                                "author": "icellusedkars",
+                                "body": "Call me Mitchell.",
+                                "created_at": 1602828180000,
+                                "votes": 10
+                            }
+                        }
+                    },
+                    "DELETE /api/comments/:comment_id": {
+                        "description": "deletes the comment with comment_id passed in parameter, serves no response body",
+                        "queries": []
+                    }
+                })
+            })
+        });
+    });
     describe('GET /api/topics', () => {
         test('GET 200 - should return an array with all topics from db', () => {
             return request(app)
