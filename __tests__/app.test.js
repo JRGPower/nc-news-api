@@ -219,27 +219,7 @@ describe('ENDPOINT TESTS', () => {
                             topic: expect.any(String),
                             created_at: expect.any(String),
                             votes: expect.any(Number),
-                            comment_count: expect.any(String),
-                        })
-                    );
-                })
-        });
-        test('GET 200 - returns single article when given valid id', () => {
-            return request(app)
-                .get("/api/articles/1")
-                .expect(200)
-                .then((res) => {
-                    expect(res.body.article.article_id).toBe(1)
-                    expect(res.body.article.comment_count).toBe("11")
-                    expect(res.body.article).toEqual(
-                        expect.objectContaining({
-                            author: expect.any(String),
-                            title: expect.any(String),
-                            article_id: expect.any(Number),
-                            topic: expect.any(String),
-                            created_at: expect.any(String),
-                            votes: expect.any(Number),
-                            comment_count: expect.any(String),
+                            comment_count: "11",
                         })
                     );
                 })
