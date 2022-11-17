@@ -518,13 +518,6 @@ describe('ENDPOINT TESTS', () => {
                         expect(res.body.msg).toBe('Bad Request');
                     });
             });
-            test('DELETE 404 - invalid url', () => {
-                return request(app).delete("/api/theseAreNotcomments/2")
-                    .expect(404)
-                    .then((res) => {
-                        expect(res.body.msg).toBe("invalid url");
-                    });
-            });
         });
     });
     describe('Errors', () => {
