@@ -25,7 +25,7 @@ exports.checkExists = (colName, tableName, query, msg) => {
 }
 
 exports.selectArticles = (topic, sort_by = "created_at", order = "desc") => {
-    //query validation
+
     if (order !== "asc" && order !== "desc") {
         return Promise.reject({ status: 400, msg: "Bad Request" });
     }
