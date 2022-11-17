@@ -497,6 +497,36 @@ describe('ENDPOINT TESTS', () => {
             });
         });
     });
+    describe.only('DELETE /api/comments/:comment_id', () => {
+        describe('/api/comments/:comment_id', () => {
+            test('DELETE 204 - successful deletion', () => {
+                return request(app)
+                    .delete('/api/comments/5')
+                    .expect(204)
+            });
+            test('DELETE 404 - out of range id', () => {
+                return request(app).delete("/api/comments/400")
+                    .expect(404)
+                    .then((res) => {
+                        expect(res.body.msg).toBe('comment not found');
+                    });
+            });
+            test('DELETE 400 - invalid id', () => {
+                return request(app).delete("/api/comments/its_a_word")
+                    .expect(400)
+                    .then((res) => {
+                        expect(res.body.msg).toBe('Bad Request');
+                    });
+            });
+            test('DELETE 404 - invalid url', () => {
+                return request(app).delete("/api/theseAreNotcomments/2")
+                    .expect(404)
+                    .then((res) => {
+                        expect(res.body.msg).toBe("invalid url");
+                    });
+            });
+        });
+    });
     describe('Errors', () => {
         test("invalid url", () => {
             return request(app)
