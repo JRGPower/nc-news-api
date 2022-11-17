@@ -1,12 +1,15 @@
 const express = require('express')
 const { getArticles, getArticleById, getArticleComments, postArticleComment, patchArticle } = require('./controllers/articles.controllers')
 const { getTopics } = require('./controllers/topics.controllers')
+const { getUsers } = require('./controllers/users.controllers')
 const { invalidURL, catchAll, invalidInput, } = require('./error_handling/errors')
 
 const app = express()
 app.use(express.json())
 
 app.get('/api/topics', getTopics)
+
+app.get("/api/users", getUsers)
 
 app.get('/api/articles', getArticles)
 app.get('/api/articles/:article_id', getArticleById)
