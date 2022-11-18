@@ -13,6 +13,14 @@ afterAll(() => {
 });
 
 describe('ENDPOINT TESTS', () => {
+    describe.only('GET /api', () => {
+        test('should respond with data about the endpoints', () => {
+            return request(app).get('/api').then((res) => {
+                expect(Object.keys(res.body).length).toBeGreaterThan(0)
+                expect(res.body).toHaveProperty('GET /api')
+            })
+        });
+    });
     describe('GET /api/topics', () => {
         test('GET 200 - should return an array with all topics from db', () => {
             return request(app)
