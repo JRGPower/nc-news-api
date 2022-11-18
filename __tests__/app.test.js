@@ -16,11 +16,8 @@ describe('ENDPOINT TESTS', () => {
     describe.only('GET /api', () => {
         test('should respond with data about the endpoints', () => {
             return request(app).get('/api').then((res) => {
-                console.log(Object.keys(res.body))
                 expect(Object.keys(res.body).length).toBeGreaterThan(0)
-                expect(Object.keys(res.body).includes('GET /api')).toBe(true)
                 expect(res.body).toHaveProperty('GET /api')
-
             })
         });
     });
