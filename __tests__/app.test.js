@@ -13,7 +13,7 @@ afterAll(() => {
 });
 
 describe('ENDPOINT TESTS', () => {
-    describe.only('GET /api', () => {
+    describe('GET /api', () => {
         test('should respond with data about the endpoints', () => {
             return request(app).get('/api').then((res) => {
                 expect(Object.keys(res.body).length).toBeGreaterThan(0)
