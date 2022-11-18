@@ -33,3 +33,5 @@ Use the following commands to set up and seed local development and test databas
 npm run setup-dbs
 npm run seed
 
+# Local Testing
+Use command "npm test" to run the test suite
