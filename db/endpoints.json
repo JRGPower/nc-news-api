@@ -29,11 +29,7 @@
   },
   "GET /api/articles": {
     "description": "serves an array of all articles",
-    "queries": [
-      "topic",
-      "sort_by",
-      "order"
-    ],
+    "queries": ["topic", "sort_by", "order"],
     "exampleResponse": {
       "articles": [
         {
@@ -41,7 +37,6 @@
           "title": "Eight pug gifs that remind me of mitch",
           "article_id": 1,
           "topic": "mitch",
-          "body": "some gifs",
           "created_at": 1604394720000,
           "votes": 0,
           "comment_count": 0
