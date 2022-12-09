@@ -135,11 +135,9 @@ exports.selectArticleComments = (articleId) => {
         com.comment_id,
         com.votes,
         com.created_at,
-        users.username AS author,
+        com.author AS author,
         com.body
     FROM articles ar
-    JOIN users
-    ON ar.author = users.username
 
     JOIN comments com
     on ar.article_id = com.article_id
